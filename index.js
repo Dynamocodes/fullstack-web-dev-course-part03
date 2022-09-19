@@ -1,5 +1,8 @@
 const express = require('express')
+
 const app = express()
+
+const MAX_ID = 10000000;
 
 let persons = 
 [
@@ -24,6 +27,20 @@ let persons =
       "number": "39-23-6423122"
     }
 ]
+
+const generateId = () => {
+    return Math.floor(Math.random() *  MAX_ID)
+}
+
+app.use(express.json())
+
+app.post('/api/persons', (request, response) => {
+  const person = request.body
+  person.id = generateId();
+  /* loging the newly added entry of the phonebook for debug purposes */
+  /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
+  response.json(person)
+})
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
