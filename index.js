@@ -36,10 +36,16 @@ app.use(express.json())
 
 app.post('/api/persons', (request, response) => {
   const person = request.body
-  person.id = generateId();
-  /* loging the newly added entry of the phonebook for debug purposes */
-  /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
-  response.json(person)
+  if(person.name === "" || person.number === ""){
+    response.status(400).json({"error": "name or number cannot be empty"})
+  }else if(persons.filter(p => p.name === person.name).length !== 0){
+    response.status(400).json({"error": `${person.name} is already used in the phonebook`})
+  }else{
+    person.id = generateId();
+    /* loging the newly added entry of the phonebook for debug purposes */
+    /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
+    response.json(person)
+  }
 })
 
 app.get('/', (request, response) => {
