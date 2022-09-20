@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
@@ -39,6 +40,7 @@ morgan.token('body', function(req, res) {
 
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(cors())
 
 app.post('/api/persons', (request, response) => {
   let person = request.body
@@ -47,7 +49,8 @@ app.post('/api/persons', (request, response) => {
   }else if(persons.filter(p => p.name === person.name).length !== 0){
     response.status(400).json({"error": `${person.name} is already used in the phonebook`})
   }else{
-    person ={...person, "id": generateId()} 
+    person ={...person, "id": generateId()}
+    persons.push(person) 
     /* loging the newly added entry of the phonebook for debug purposes */
     /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
     response.json(person)
