@@ -33,17 +33,21 @@ const generateId = () => {
     return Math.floor(Math.random() *  MAX_ID)
 }
 
+morgan.token('body', function(req, res) {
+    return JSON.stringify(req.body);
+});
+
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 app.post('/api/persons', (request, response) => {
-  const person = request.body
+  let person = request.body
   if(person.name === "" || person.number === ""){
     response.status(400).json({"error": "name or number cannot be empty"})
   }else if(persons.filter(p => p.name === person.name).length !== 0){
     response.status(400).json({"error": `${person.name} is already used in the phonebook`})
   }else{
-    person.id = generateId();
+    person ={...person, "id": generateId()} 
     /* loging the newly added entry of the phonebook for debug purposes */
     /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
     response.json(person)
