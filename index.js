@@ -41,6 +41,7 @@ morgan.token('body', function(req, res) {
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
+app.use(express.static('build'))
 
 app.post('/api/persons', (request, response) => {
   let person = request.body
@@ -82,12 +83,17 @@ app.get('/api/persons/:id', (request, response) => {
 
   app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-  
-    response.status(204).end()
+    let personToDelete = persons.find(person => person.id === id)
+    if(personToDelete){
+        persons = persons.filter(person => person.id !== id)
+        response.status(204).end()
+    }else{
+        response.status(404).json({"error": "the entry has already been removed"})
+    }
+    
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

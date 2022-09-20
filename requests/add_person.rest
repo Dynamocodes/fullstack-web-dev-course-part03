@@ -5,3 +5,12 @@ content-type: application/json
     "name": "Elias Hietanen",
     "number": "2345456456456"
 }
+
+###
+POST https://proud-grass-5483.fly.dev/api/persons/
+content-type: application/json
+
+{
+    "name": "Elias Hietanen",
+    "number": "2345456456456"
+}
