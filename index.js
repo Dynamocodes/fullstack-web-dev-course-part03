@@ -50,14 +50,18 @@ app.post('/api/persons', (request, response) => {
   let person = request.body
   if(person.name === "" || person.number === ""){
     response.status(400).json({"error": "name or number cannot be empty"})
-  }else if(persons.filter(p => p.name === person.name).length !== 0){
-    response.status(400).json({"error": `${person.name} is already used in the phonebook`})
   }else{
-    person ={...person, "id": generateId()}
-    persons.push(person) 
+    let newPerson = new Person({
+        name: person.name,
+        number: person.number
+    })
+    newPerson.save().then(result => {
+        console.log(`added ${newPerson} to the phonebook`)
+        response.json(newPerson)
+    })
     /* loging the newly added entry of the phonebook for debug purposes */
     /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
-    response.json(person)
+    
   }
 })
 
@@ -72,8 +76,11 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    let date = new Date()
-    response.send(`<p>Phonebook has info for ${persons.length} people</p> <p>${date}</p>`)
+    Person.find({}).then(result => {
+        let date = new Date()
+        response.send(`<p>Phonebook has info for ${result.length} people</p> <p>${date}</p>`)
+    })
+    
 })
 
 app.get('/api/persons/:id', (request, response) => {
