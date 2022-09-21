@@ -28,42 +28,6 @@ const getAllPeople = () => {
     return Person.find({})
 }
 
-/* switch (process.argv.length){
-    case 3:
-        mongoose
-            .connect(url)
-            .then((result) => {
-                console.log('connected')
-
-                return getAllPeople()
-            })
-            .then(result => {
-                console.log('phonebook')
-                result.forEach(person => {
-                    console.log(`${person.name} ${person.number}`)
-                })
-                mongoose.connection.close()
-            }).catch((err) => console.log(err))
-        break;
-    case 5:
-        mongoose
-            .connect(url)
-            .then((result) => {
-                console.log('connected')
-                return addPerson(process.argv[3], process.argv[4])
-            })
-            .then((result) => {
-                console.log(`added ${process.argv[3]} number ${process.argv[4]} to phonebook`)
-                mongoose.connection.close()
-            })
-            .catch((err) => console.log(err))
-        break;
-    default:
-        console.log('Invalid number of arguments')
-        process.exit(1)
-
-} */
-
 mongoose
     .connect(url)
     .then((result) => {
