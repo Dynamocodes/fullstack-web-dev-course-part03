@@ -4,48 +4,16 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
 
-
 const app = express()
-
-const MAX_ID = 10000000;
-
-let persons = 
-[
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-const generateId = () => {
-    return Math.floor(Math.random() *  MAX_ID)
-}
 
 morgan.token('body', function(req, res) {
     return JSON.stringify(req.body);
 });
 
+app.use(express.static('build'))
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
-app.use(express.static('build'))
-
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
@@ -70,16 +38,29 @@ app.post('/api/persons', (request, response) => {
         console.log(`added ${newPerson} to the phonebook`)
         response.json(newPerson)
     })
-    /* loging the newly added entry of the phonebook for debug purposes */
-    /* console.log(`${JSON.stringify(person)} was added to the phonebook`) */
-    
   }
 })
 
-app.get('/', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+  
+    const person = {
+      content: body.content,
+      important: body.important,
+    }
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  })
+/* root route */
+app.get('/', (request, response, next) => {
   response.send('<h1>Hello World!</h1>')
 })
 
+/* get all the entries of the database */
 app.get('/api/persons', (request, response) => {
     Person
     .find({})
@@ -89,7 +70,8 @@ app.get('/api/persons', (request, response) => {
     .catch(error => next(error))
 })
 
-app.get('/info', (request, response) => {
+/* info route */
+app.get('/info', (request, response, next) => {
     Person.find({}).then(result => {
         let date = new Date()
         response.send(`<p>Phonebook has info for ${result.length} people</p> <p>${date}</p>`)
@@ -97,7 +79,8 @@ app.get('/info', (request, response) => {
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+/* handling get request for individual entries */
+app.get('/api/persons/:id', (request, response, next) => {
     Person
     .findById(Number(request.params.id))
     .then(person => {
@@ -110,6 +93,7 @@ app.get('/api/persons/:id', (request, response) => {
     .catch(error => next(error))
 })
 
+/* handling delete requests */
 app.delete('/api/persons/:id', (request, response, next) => {
     Person
         .findByIdAndRemove(request.params.id)
@@ -119,8 +103,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
-
-
+/* defining port at which the app will be run */
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
