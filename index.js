@@ -46,6 +46,17 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(cors())
 app.use(express.static('build'))
 
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+    if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+    } 
+    next(error)
+}
+
+app.use(errorHandler)
+
 app.post('/api/persons', (request, response) => {
   let person = request.body
   if(person.name === "" || person.number === ""){
@@ -70,9 +81,12 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
+    Person
+    .find({})
+    .then(persons => {
         response.json(persons)
     })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -80,17 +94,20 @@ app.get('/info', (request, response) => {
         let date = new Date()
         response.send(`<p>Phonebook has info for ${result.length} people</p> <p>${date}</p>`)
     })
-    
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if(person){
-        response.json(person)
-    }else{
-        response.status(404).end()
-    }
+    Person
+    .findById(Number(request.params.id))
+    .then(person => {
+        if(person){
+            response.json(person)
+        }else{
+            response.status(404).end()
+        }
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -101,6 +118,8 @@ app.delete('/api/persons/:id', (request, response, next) => {
         })
         .catch(error => next(error))
 })
+
+
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
