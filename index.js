@@ -82,7 +82,7 @@ app.get('/info', (request, response, next) => {
 /* handling get request for individual entries */
 app.get('/api/persons/:id', (request, response, next) => {
     Person
-    .findById(Number(request.params.id))
+    .findById(request.params.id)
     .then(person => {
         if(person){
             response.json(person)
