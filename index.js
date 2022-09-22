@@ -40,15 +40,18 @@ app.post('/api/persons', (request, response, next) => {
 /* updating an existing entry to the phonebook */
 app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body
-  
     const person = {
-      content: body.content,
-      important: body.important,
+      name: body.name,
+      number: body.number,
     }
     Person
     .findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query'})
     .then(updatedPerson => {
-        response.json(updatedPerson)
+        if(updatedPerson){
+            response.json(updatedPerson)
+        }else{
+            response.status(404).end()
+        }
     })
     .catch(error => {
         next(error)
