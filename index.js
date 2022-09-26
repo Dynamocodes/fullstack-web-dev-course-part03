@@ -50,7 +50,7 @@ app.put('/api/persons/:id', (request, response, next) => {
       if(updatedPerson){
         response.json(updatedPerson)
       }else{
-        response.status(404).end()
+        response.status(400).end()
       }
     })
     .catch(error => {
